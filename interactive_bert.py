@@ -6,13 +6,15 @@ To download pre-trained BERT vocabulary and models, please run "bash ./download.
 
 import os
 import argparse
+import numpy as np
 
 import torch
-from pytorch_pretrained_bert import BertTokenizer, BertForMaskedLM
+from pytorch_transformers import BertTokenizer, BertForMaskedLM, BertConfig
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--bert-model', type=str, default='bert_models/bert-base-uncased.tar.gz', help='path to bert model')
-parser.add_argument('--bert-vocab', type=str, default='bert_models/bert-base-uncased-vocab.txt', help='path to bert vocabulary')
+parser.add_argument('--bert-model', type=str, default='./bert-base-uncased/pytorch_model.bin', help='path to bert model')
+parser.add_argument('--bert-vocab', type=str, default='./bert-base-uncased/vocab.txt', help='path to bert vocabulary')
+parser.add_argument('--bert-config', type=str, default='./bert-base-uncased/config.json', help='path to bert config')
 parser.add_argument('--topk', type=int, default=5, help='show top k predictions')
 
 PAD, MASK, CLS, SEP = '[PAD]', '[MASK]', '[CLS]', '[SEP]'
@@ -36,7 +38,8 @@ if __name__ == '__main__':
     print('Initialize BERT vocabulary from {}...'.format(args.bert_vocab))
     bert_tokenizer = BertTokenizer(vocab_file=args.bert_vocab)
     print('Initialize BERT model from {}...'.format(args.bert_model))
-    bert_model = BertForMaskedLM.from_pretrained(args.bert_model)
+    config = BertConfig.from_json_file('./bert-base-uncased/config.json')
+    bert_model = BertForMaskedLM.from_pretrained('./bert-base-uncased/pytorch_model.bin', config = config)
 
     while True:
         message = input('Enter your message: ').strip()
@@ -50,7 +53,7 @@ if __name__ == '__main__':
         token_idx, segment_idx, mask = to_bert_input(tokens, bert_tokenizer)
         with torch.no_grad():
             logits = bert_model(token_idx, segment_idx, mask, masked_lm_labels=None)
-        logits = logits.squeeze(0)
+        logits = np.squeeze(logits[0], axis=0)
         probs = torch.softmax(logits, dim=-1)
 
         mask_cnt = 0

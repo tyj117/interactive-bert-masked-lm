@@ -2,15 +2,17 @@
 
 ## Requirements
 
-[pytorch 1.0](https://pytorch.org)
-
-[pytorch-pretrained-bert](https://github.com/huggingface/pytorch-pretrained-bert)
+[pytorch 1.0]  
+[numpy 1.17.3]  
+[pytorch-transformers 1.0.0]  
 
 ## Download data
 
 `bash ./download.sh`
 
 By default, it will download `bert-base-uncased` vocabulary and pre-trained weights.
+
+Or you can download from https://s3.amazonaws.com/models.huggingface.co
 
 ## Run
 
